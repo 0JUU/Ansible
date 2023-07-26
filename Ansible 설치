@@ -48,3 +48,10 @@ Ansible 설치
       "changed": false,
       "ping": "pong"
       }
+
+
+Ansible 설치 확인
+ $ ansible --version
+
+ cf) ansible-core 패키지 버전 확인
+     $ ansible-community --version
