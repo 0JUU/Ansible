@@ -1,0 +1,50 @@
+Ansible
+- 원격 시스템 관리를 자동화하고 제어한다.
+- Ansible 환경에는 제어노드와 관리노드, 인벤트리가 있다.
+ - 제어노드(Control Node): Ansible이 설치된 시스템. 제어노드에서 ansible 또는 ansible-inventory와 같은 Ansible 명령어를 사용.
+ - 관리노드(Managed Node): Ansible이 제어하는 원격 시스템 또는 호스트
+ - 인벤토리(Inventory): 논리적으로 구성된 관리 노드 목록. 제어노드에 인벤토리를 생성하여 Ansible에 대한 호스트를 배포.
+
+
+Ansible 설치
+- 설치
+ pyhon: python3 -m pip install --user ansible
+ ubuntu: $ sudo apt update
+         $ sudo apt install software-properties-common
+         $ sudo add-apt-repository --tes --update ppa:ansible/ansible
+         $ sudo apt install ansible
+
+- 하나 이상의 원격 시스템의 IP Address 또는 FQDN(정규화된 도메인 이름)을 /etc/ansible/hosts에 추가하여 인벤토리 생성.
+ [myvm]
+ 192.0.4.12
+ 192.0.4.23
+
+- 인벤토리의 호스트 확인
+ ansible all --list-hosts
+
+ hosts (1):
+    192.0.4.12
+    192.0.4.23
+    
+- SSH 연결 설정(Ansible이 관리 노드에 연결)
+ - 각 원격 시스템에서 authorized_keys 파일에 public SSH key를 추가
+ - SSH 연결을 테스트
+  ssh username@192.0.4.12
+  만약, 호스트에서 제어노드의 username이 다르다면, -u 옵션을 사용
+ - 관리노드들에 ping 날리기
+  ansible all -m ping
+ 
+  192.0.4.12 | SUCCESS => {
+    "ansible_facts": {
+      "discovered_interpreter_python": "/usr/bin/python3"
+      },
+      "changed": false,
+      "ping": "pong"
+      }
+  192.0.4.23 | SUCCESS => {
+    "ansible_facts": {
+      "discovered_interpreter_python": "/usr/bin/python3"
+      },
+      "changed": false,
+      "ping": "pong"
+      }
