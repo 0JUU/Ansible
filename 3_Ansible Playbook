@@ -1,6 +1,67 @@
 Ansible Playbook
-- 반복성, 재사용성. 
-- 간단한 구성 관리 및 다중 시스템 배포 가능. 복잡한 애플리케이션 배포.
-- Ansible로 작업을 두 번 이상 실행해야 하는 경우에 Playbook을 작성하여 소스 제어 하에 둠
- -> Playbook을 사용하여 새 구성을 push하거나 원격 시스템의 구성을 확인 가능
-- 
+
+1. 특징
+ 1) 반복성, 재사용성. 
+ 2) 간단한 구성 관리 및 다중 시스템 배포 가능. 복잡한 애플리케이션 배포.
+ 3) Ansible로 작업을 두 번 이상 실행해야 하는 경우에 Playbook을 작성하여 소스 제어 하에 둠
+  -> Playbook을 사용하여 새 구성을 push하거나 원격 시스템의 구성을 확인 가능
+
+2. 구문
+ 1) YAML 형식으로 표현
+ 2) Playbook은 순서 목록에서 하나 이상의 'Play'로 구성된다.
+    각 Play는 하나 이상의 작업을 실행하면서 Playbook의 전체 목표의 일부를 실행한다.
+    각 작업은 Ansible 모듈을 호출한다.
+
+3. 실행
+ 1) Playbook은 하향식으로 순서대로 실행된다. 각 Play 내에서도 하향식 실행된다.
+ 2) 여러 개의 Play가 있는 Playbook은 Web Server에서 한 Play를 실행한 다음 Database Server에서 다른 Play를 실행하고 Network Infra에서 세 번째 Play를 실행하는 등 다중 시스템 배포를 조정할 수 있다.
+  2-1) 대상으로 지정할 관리노드, 패턴을 사용한다.
+  2-2) 실행할 Task를 하나 이상 정의한다.
+
+ ex. Update Web Servers, Update DB Servers
+  ---
+  - name: Update web servers
+    hosts: webservers
+    remote_user: root
+
+    tasks:
+    - name: Ensure apache is at the latest version
+      ansible.builtin.yum:
+        name: httpd
+        state: latest
+    - name: Write the apache config file
+      ansible.builtin.template:
+        src: /srv/httpd.j2
+        dest: /etc/httpd.conf
+
+  - name: Update db servers
+    hosts: databases
+    remote_user: root
+
+    tasks:
+    - name: Ensure postgresql is at the latest version
+      ansible.builtin.yum:
+        name: postgresql
+        state: latest
+    - name: Ensure that postgresql is started
+      ansible.builtin.service:
+        name: postgresql
+        state: started
+
+4. idempotent
+ 1) Ansible 모듈이 원하는 최종 상태에 달성됐는지 확인하고 해당 상태가 달성되면 작업을 반복해도 최종 상태가 변경되지 않도록 작업을 종료한다.
+    이러한 방식으로 동작하는 모듈을 idempotent라고 한다.
+ 2) Playbook 실행 결과는 그 횟수가 몇 번이든 항상 동일해야 한다.
+    그러나 모든 Playbook과 모든 모듈이 이런 것은 아니므로 샌드박스 환경에서 테스트해보는 것이 좋다.
+
+5. 실행 중인 Playbook
+ - Playbook 실행 명령어
+  $ ansible-playbook playbook.yml -f 10
+ - Playbook을 실행할 때 --verbose 플래그를 지정하여 사용하면 성공한 모듈과 실패한 모듈의 세부 출력을 확인할 수 있다.
+
+6. ansible-lint
+ - Playbook을 실행하기 전에 ansible-lint를 사용하면 Playbook에 대한 피드백을 받을 수 있다.
+  $ ansible-lint verify-apache.yml
+  [403] Package installs should not use latest
+  verify-apache.yml:8
+  Task/Handler: ensure apache is at the latest version
