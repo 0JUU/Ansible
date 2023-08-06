@@ -1,4 +1,4 @@
-YAML
+# YAML
 
 1. 특징
  1)Playbook은 YAML로 표현된다.
@@ -72,7 +72,7 @@ YAML
 
 --------------------------------------------------------------------------------------------
 
-Gotchas
+# Gotchas
 
 1. 다음의 경우는 YAML 구문 오류가 발생한다.
   foo: somebody said I should put a colon here: so I did
